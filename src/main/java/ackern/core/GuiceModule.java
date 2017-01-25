@@ -9,6 +9,7 @@ import ackern.core.config.CodisConfig;
 import ackern.core.config.HBaseConfig;
 import ackern.core.config.HibernateConfig;
 import ackern.core.config.HttpClientConfig;
+import ackern.core.config.JdbcConfig;
 import ackern.core.config.MemcacheConfig;
 import ackern.core.config.RabbitConfig;
 import ackern.core.config.RedisClusterConfig;
@@ -19,6 +20,8 @@ import ackern.core.hibernate.HibernateGroup;
 import ackern.core.hibernate.HibernateStore;
 import ackern.core.http.HttpClient;
 import ackern.core.http.HttpClientGroup;
+import ackern.core.jdbc.JdbcGroup;
+import ackern.core.jdbc.JdbcStore;
 import ackern.core.memcache.MemcacheGroup;
 import ackern.core.memcache.MemcacheStore;
 import ackern.core.rabbitmq.RabbitGroup;
@@ -46,6 +49,7 @@ public abstract class GuiceModule extends AbstractModule {
 		this.bindHttpClient();
 		this.bindRabbitmq();
 		this.bindHibernate();
+		this.bindJdbc();
 		this.bindHBase();
 		this.onBindOk();
 	}
@@ -78,6 +82,19 @@ public abstract class GuiceModule extends AbstractModule {
 		for (String name : group.names()) {
 			HibernateStore store = group.get(name);
 			bind(HibernateStore.class).annotatedWith(Names.named(name)).toInstance(store);
+		}
+	}
+
+	private void bindJdbc() {
+		JdbcGroup group = new JdbcGroup();
+		group.config(self -> {
+			for (Entry<String, JdbcConfig> entry : config.getJdbcs().entrySet()) {
+				self.register(entry.getKey(), new JdbcStore(entry.getValue()));
+			}
+		});
+		for (String name : group.names()) {
+			JdbcStore store = group.get(name);
+			bind(JdbcStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
 	}
 

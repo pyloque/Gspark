@@ -14,6 +14,7 @@ import ackern.core.config.CodisConfig;
 import ackern.core.config.HBaseConfig;
 import ackern.core.config.HibernateConfig;
 import ackern.core.config.HttpClientConfig;
+import ackern.core.config.JdbcConfig;
 import ackern.core.config.MemcacheConfig;
 import ackern.core.config.RabbitConfig;
 import ackern.core.config.RedisClusterConfig;
@@ -41,6 +42,8 @@ public class AppConfig {
 	private Map<String, HttpClientConfig> httpClients = new HashMap<>();
 	@JSONField(name = "hibernate")
 	private Map<String, HibernateConfig> hibernates = new HashMap<>();
+	@JSONField(name = "jdbc")
+	private Map<String, JdbcConfig> jdbcs = new HashMap<>();
 	@JSONField(name = "hbase")
 	private Map<String, HBaseConfig> hbases = new HashMap<>();
 
@@ -134,6 +137,14 @@ public class AppConfig {
 
 	public void setHbases(Map<String, HBaseConfig> hbases) {
 		this.hbases = hbases;
+	}
+
+	public Map<String, JdbcConfig> getJdbcs() {
+		return jdbcs;
+	}
+
+	public void setJdbcs(Map<String, JdbcConfig> jdbcs) {
+		this.jdbcs = jdbcs;
 	}
 
 	public static void main(String[] args) {

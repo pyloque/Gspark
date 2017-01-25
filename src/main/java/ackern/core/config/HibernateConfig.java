@@ -5,8 +5,26 @@ public class HibernateConfig {
 	private String dialect = "org.hibernate.dialect.HSQLDialect";
 	private String driver = "org.hsqldb.jdbc.JDBCDriver";
 	private String uri = "jdbc:hsqldb:mem:test";
+	private String username = "test";
+	private String password = "test";
 	private String autoddl = "create";
 	private boolean verbose = false;
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
 	public String getDialect() {
 		return dialect;

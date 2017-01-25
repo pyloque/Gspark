@@ -28,6 +28,8 @@ public class HibernateStore {
 		cfg.setProperty("hibernate.connection.driver_class", config.getDriver());
 		cfg.setProperty("hibernate.connection.url", config.getUri());
 		cfg.setProperty("hibernate.hbm2ddl.auto", config.getAutoddl());
+		cfg.setProperty("hibernate.connection.username", config.getUsername());
+		cfg.setProperty("hibernate.connection.password", config.getPassword());
 		cfg.setProperty("hibernate.show_sql", String.valueOf(config.isVerbose()));
 	}
 
