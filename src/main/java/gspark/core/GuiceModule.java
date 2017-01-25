@@ -34,7 +34,15 @@ import gspark.core.spark.SparkServer;
 
 public abstract class GuiceModule extends AbstractModule {
 
-	private AppConfig config;
+	protected AppConfig config;
+	protected SparkServer sparkServer;
+	protected HBaseStoreGroup hbaseGroup;
+	protected HibernateGroup hibernateGroup;
+	protected JdbcGroup jdbcGroup;
+	protected HttpClientGroup httpClientGroup;
+	protected MemcacheGroup memcacheGroup;
+	protected RabbitGroup rabbitGroup;
+	protected RedisGroup redisGroup;
 
 	public GuiceModule(AppConfig config) {
 		this.config = config;
@@ -55,115 +63,115 @@ public abstract class GuiceModule extends AbstractModule {
 	}
 
 	private void bindSpark() {
-		SparkServer spark = new SparkServer(config.getSpark());
-		bind(SparkServer.class).toInstance(spark);
+		sparkServer = new SparkServer(config.getSpark());
+		bind(SparkServer.class).toInstance(sparkServer);
 	}
 
 	private void bindHBase() {
-		HBaseStoreGroup group = new HBaseStoreGroup();
-		group.config(self -> {
+		hbaseGroup = new HBaseStoreGroup();
+		hbaseGroup.config(self -> {
 			for (Entry<String, HBaseConfig> entry : config.getHbases().entrySet()) {
 				self.register(entry.getKey(), new HBaseStore(entry.getValue()));
 			}
 		});
-		for (String name : group.names()) {
-			HBaseStore store = group.get(name);
+		for (String name : hbaseGroup.names()) {
+			HBaseStore store = hbaseGroup.get(name);
 			bind(HBaseStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
 	}
 
 	private void bindHibernate() {
-		HibernateGroup group = new HibernateGroup();
-		group.config(self -> {
+		hibernateGroup = new HibernateGroup();
+		hibernateGroup.config(self -> {
 			for (Entry<String, HibernateConfig> entry : config.getHibernates().entrySet()) {
 				self.register(entry.getKey(), new HibernateStore(entry.getValue()));
 			}
 		});
-		for (String name : group.names()) {
-			HibernateStore store = group.get(name);
+		for (String name : hibernateGroup.names()) {
+			HibernateStore store = hibernateGroup.get(name);
 			bind(HibernateStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
 	}
 
 	private void bindJdbc() {
-		JdbcGroup group = new JdbcGroup();
-		group.config(self -> {
+		jdbcGroup = new JdbcGroup();
+		jdbcGroup.config(self -> {
 			for (Entry<String, JdbcConfig> entry : config.getJdbcs().entrySet()) {
 				self.register(entry.getKey(), new JdbcStore(entry.getValue()));
 			}
 		});
-		for (String name : group.names()) {
-			JdbcStore store = group.get(name);
+		for (String name : jdbcGroup.names()) {
+			JdbcStore store = jdbcGroup.get(name);
 			bind(JdbcStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
 	}
 
 	private void bindHttpClient() {
-		HttpClientGroup group = new HttpClientGroup();
-		group.config(self -> {
+		httpClientGroup = new HttpClientGroup();
+		httpClientGroup.config(self -> {
 			for (Entry<String, HttpClientConfig> entry : config.getHttpClients().entrySet()) {
 				self.register(entry.getKey(), new HttpClient(entry.getValue()));
 			}
 		});
-		for (String name : group.names()) {
-			HttpClient client = group.get(name);
+		for (String name : httpClientGroup.names()) {
+			HttpClient client = httpClientGroup.get(name);
 			bind(HttpClient.class).annotatedWith(Names.named(name)).toInstance(client);
 		}
 	}
 
 	private void bindMemcache() {
-		MemcacheGroup group = new MemcacheGroup();
-		group.config(self -> {
+		memcacheGroup = new MemcacheGroup();
+		memcacheGroup.config(self -> {
 			for (Entry<String, MemcacheConfig> entry : config.getMemcaches().entrySet()) {
 				self.register(entry.getKey(), new MemcacheStore(entry.getValue()));
 			}
 		});
-		for (String name : group.names()) {
-			MemcacheStore store = group.get(name);
+		for (String name : memcacheGroup.names()) {
+			MemcacheStore store = memcacheGroup.get(name);
 			bind(MemcacheStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
 	}
 
 	private void bindRabbitmq() {
-		RabbitGroup group = new RabbitGroup();
-		group.config(self -> {
+		rabbitGroup = new RabbitGroup();
+		rabbitGroup.config(self -> {
 			for (Entry<String, RabbitConfig> entry : config.getRabbitmqs().entrySet()) {
 				self.register(entry.getKey(), new RabbitStore(entry.getValue()));
 			}
 		});
-		for (String name : group.names()) {
-			RabbitStore store = group.get(name);
+		for (String name : rabbitGroup.names()) {
+			RabbitStore store = rabbitGroup.get(name);
 			bind(RabbitStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
 	}
 
 	private void bindRedis() {
-		RedisGroup group = new RedisGroup();
-		group.config(self -> {
+		redisGroup = new RedisGroup();
+		redisGroup.config(self -> {
 			for (Entry<String, RedisConfig> entry : config.getRedises().entrySet()) {
 				self.register(entry.getKey(), new RedisStore(entry.getValue()));
 			}
 		});
-		for (String name : group.redisNames()) {
-			RedisStore store = group.redis(name);
+		for (String name : redisGroup.redisNames()) {
+			RedisStore store = redisGroup.redis(name);
 			bind(RedisStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
-		group.config(self -> {
+		redisGroup.config(self -> {
 			for (Entry<String, CodisConfig> entry : config.getCodises().entrySet()) {
 				self.register(entry.getKey(), new CodisStore(entry.getValue()));
 			}
 		});
-		for (String name : group.codisNames()) {
-			CodisStore store = group.codis(name);
+		for (String name : redisGroup.codisNames()) {
+			CodisStore store = redisGroup.codis(name);
 			bind(CodisStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
-		group.config(self -> {
+		redisGroup.config(self -> {
 			for (Entry<String, RedisClusterConfig> entry : config.getRedisClusters().entrySet()) {
 				self.register(entry.getKey(), new RedisClusterStore(entry.getValue()));
 			}
 		});
-		for (String name : group.clusterNames()) {
-			RedisClusterStore store = group.cluster(name);
+		for (String name : redisGroup.clusterNames()) {
+			RedisClusterStore store = redisGroup.cluster(name);
 			bind(RedisClusterStore.class).annotatedWith(Names.named(name)).toInstance(store);
 		}
 	}
