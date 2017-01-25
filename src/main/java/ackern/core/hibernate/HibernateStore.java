@@ -31,6 +31,10 @@ public class HibernateStore {
 		cfg.setProperty("hibernate.connection.username", config.getUsername());
 		cfg.setProperty("hibernate.connection.password", config.getPassword());
 		cfg.setProperty("hibernate.show_sql", String.valueOf(config.isVerbose()));
+		cfg.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
+		cfg.setProperty("hibernate.c3p0.max_size", "" + config.getMaxConns());
+		cfg.setProperty("hibernate.c3p0.min_size", "0");
+		cfg.setProperty("hibernate.c3p0.acquire_increment", "1");
 	}
 
 	private SessionFactory factory() {

@@ -8,6 +8,7 @@ public class HibernateConfig {
 	private String username = "test";
 	private String password = "test";
 	private String autoddl = "create";
+	private int maxConns = 5;
 	private boolean verbose = false;
 
 	public String getUsername() {
@@ -64,6 +65,14 @@ public class HibernateConfig {
 
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
+	}
+
+	public int getMaxConns() {
+		return maxConns;
+	}
+
+	public void setMaxConns(int maxConns) {
+		this.maxConns = maxConns;
 	}
 
 }
