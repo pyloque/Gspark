@@ -8,11 +8,11 @@ import com.google.inject.Singleton;
 @Singleton
 public class Boss {
 
-	private List<Pander<?>> panders = new ArrayList<>();
+	private List<Worker<?>> workers = new ArrayList<>();
 	private int termAwait = 5;
 
-	public Boss pander(Pander<?> pander) {
-		this.panders.add(pander);
+	public Boss worker(Worker<?> worker) {
+		this.workers.add(worker);
 		return this;
 	}
 
@@ -22,21 +22,21 @@ public class Boss {
 	}
 
 	public void start() {
-		for (Pander<?> pander : panders) {
+		for (Worker<?> worker : workers) {
 			new Thread() {
 				public void run() {
-					pander.suckUp();
+					worker.suckUp();
 				}
 			}.start();
 		}
 	}
 
 	public void stop() {
-		for (Pander<?> pander : panders) {
-			pander.stop();
+		for (Worker<?> worker : workers) {
+			worker.stop();
 		}
-		for (Pander<?> pander : panders) {
-			pander.awaitForTermination(termAwait);
+		for (Worker<?> worker : workers) {
+			worker.awaitForTermination(termAwait);
 		}
 	}
 

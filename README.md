@@ -68,8 +68,8 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
-import acdemo.panders.redis.RedisPingPander;
-import acdemo.panders.redis.RedisPongPander;
+import acdemo.workers.redis.RedisPingWorker;
+import acdemo.workers.redis.RedisPongWorker;
 import gspark.core.AppConfig;
 import gspark.core.background.Boss;
 
@@ -78,9 +78,9 @@ public class BossStarter {
 	@Inject
 	private Boss boss;
 	@Inject
-	private RedisPingPander pingPander;
+	private RedisPingWorker pingWorker;
 	@Inject
-	private RedisPongPander pongPander;
+	private RedisPongWorker pongWorker;
 
 	public static void main(String[] args) {
 		AppConfig config = AppConfig.load();
@@ -90,7 +90,7 @@ public class BossStarter {
 	}
 
 	public void start() {
-		boss.pander(pingPander).pander(pongPander).start();
+		boss.worker(pingWorker).worker(pongWorker).start();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 
 			public void run() {

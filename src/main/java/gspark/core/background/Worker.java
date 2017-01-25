@@ -5,19 +5,19 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Pander<T> {
-	private final static Logger LOG = LoggerFactory.getLogger(Pander.class);
+public abstract class Worker<T> {
+	private final static Logger LOG = LoggerFactory.getLogger(Worker.class);
 
 	private BlockingThreadPoolExecutor executor;
 	private boolean stop;
 	private int sleepAwait;
 
-	public Pander(int capacity, int sleepAwaitInMillis) {
+	public Worker(int capacity, int sleepAwaitInMillis) {
 		this.sleepAwait = sleepAwaitInMillis;
 		this.executor = new BlockingThreadPoolExecutor(capacity);
 	}
 
-	public Pander(int capacity) {
+	public Worker(int capacity) {
 		this(capacity, 1000);
 	}
 
@@ -51,14 +51,14 @@ public abstract class Pander<T> {
 		try {
 			this.beforeStart();
 		} catch (Exception e) {
-			LOG.error("before start error in pander", e);
+			LOG.error("before start error in worker", e);
 		}
 		while (!stop) {
 			T t = null;
 			try {
 				t = take();
 			} catch (Exception e) {
-				LOG.error("take error in pander", e);
+				LOG.error("take error in worker", e);
 			}
 			if (t != null) {
 				final T x = t;
@@ -66,14 +66,14 @@ public abstract class Pander<T> {
 					try {
 						process(x);
 					} catch (Exception e) {
-						LOG.error("process error in pander", e);
+						LOG.error("process error in worker", e);
 					}
 				});
 			} else {
 				try {
 					idle();
 				} catch (Exception e) {
-					LOG.error("idle error in pander", e);
+					LOG.error("idle error in worker", e);
 				}
 				try {
 					Thread.sleep(sleepAwait);
@@ -97,7 +97,7 @@ public abstract class Pander<T> {
 	public void awaitForTermination(int seconds) {
 		try {
 			if (!executor.awaitTermination(seconds, TimeUnit.SECONDS)) {
-				LOG.warn("tasks maybe lost in pander");
+				LOG.warn("tasks maybe lost in worker");
 			}
 		} catch (InterruptedException e) {
 		}
