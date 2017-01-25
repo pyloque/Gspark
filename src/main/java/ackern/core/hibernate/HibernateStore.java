@@ -2,8 +2,15 @@ package ackern.core.hibernate;
 
 import java.util.function.Consumer;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AnnotationConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ackern.core.config.HibernateConfig;
+import ackern.core.error.HibernateError;
 
 /**
  * 
@@ -11,24 +18,49 @@ import org.hibernate.SessionFactory;
  *
  */
 public class HibernateStore {
+	private final static Logger LOG = LoggerFactory.getLogger(HibernateStore.class);
 
 	private SessionFactory factory;
+	private AnnotationConfiguration cfg = new AnnotationConfiguration();
 
-	public HibernateStore(SessionFactory factory) {
-		this.factory = factory;
+	public HibernateStore(HibernateConfig config) {
+		cfg.setProperty("hibernate.dialect", config.getDialect());
+		cfg.setProperty("hibernate.connection.driver_class", config.getDriver());
+		cfg.setProperty("hibernate.connection.url", config.getUri());
+		cfg.setProperty("hibernate.hbm2ddl.auto", config.getAutoddl());
+		cfg.setProperty("hibernate.show_sql", String.valueOf(config.isVerbose()));
+	}
+
+	private SessionFactory factory() {
+		if (factory == null) {
+			factory = cfg.buildSessionFactory();
+		}
+		return factory;
 	}
 
 	public void close() {
-		factory.close();
+		if (factory != null) {
+			factory.close();
+		}
 	}
 
-	public void execute(Consumer<Session> func) {
-		Session session = factory.openSession();
+	public HibernateStore config(Consumer<AnnotationConfiguration> configFunc) {
+		configFunc.accept(cfg);
+		factory = cfg.buildSessionFactory();
+		return this;
+	}
+
+	public HibernateStore execute(Consumer<Session> func) {
+		Session session = factory().openSession();
 		try {
 			func.accept(session);
+		} catch (HibernateException e) {
+			LOG.error("hibernate operation error", e);
+			throw new HibernateError("hibernate operation error", e);
 		} finally {
 			session.close();
 		}
+		return this;
 	}
 
 }

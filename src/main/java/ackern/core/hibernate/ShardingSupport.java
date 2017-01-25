@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import ackern.core.errors.HibernateError;
+import ackern.core.error.HibernateError;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.annotation.AnnotationDescription;
 

@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ackern.core.Holder;
-import ackern.core.errors.MemcacheError;
+import ackern.core.config.MemcacheConfig;
+import ackern.core.error.MemcacheError;
 import net.rubyeye.xmemcached.MemcachedClient;
 import net.rubyeye.xmemcached.MemcachedClientBuilder;
 import net.rubyeye.xmemcached.XMemcachedClientBuilder;
@@ -23,13 +24,13 @@ public class MemcacheStore {
 	private MemcachedClientBuilder builder;
 	private MemcachedClient client;
 
-	public MemcacheStore(String addrs) {
-		MemcachedClientBuilder builder = new XMemcachedClientBuilder(AddrUtil.getAddresses(addrs));
-		builder.setConnectionPoolSize(5); // 链接池
+	public MemcacheStore(MemcacheConfig config) {
+		MemcachedClientBuilder builder = new XMemcachedClientBuilder(AddrUtil.getAddresses(config.getAddrs()));
+		builder.setConnectionPoolSize(config.getPoolSize()); // 链接池
 		builder.setSessionLocator(new KetamaMemcachedSessionLocator()); // ketama算法计算hash
-		builder.setConnectTimeout(3000);
-		builder.setOpTimeout(1000);
-		builder.setHealSessionInterval(10000); // 10秒重试链接恢复
+		builder.setConnectTimeout(config.getConnectTimeout());
+		builder.setOpTimeout(config.getSoTimeout());
+		builder.setHealSessionInterval(config.getHealSessionInterval()); // 10秒重试链接恢复
 		this.builder = builder;
 	}
 
@@ -129,22 +130,6 @@ public class MemcacheStore {
 			result.set(client.touch(key, exp));
 		});
 		return result.value();
-	}
-
-	public static void main(String[] args) {
-		MemcacheStore store = new MemcacheStore("localhost:11222 localhost:11223");
-		for (int i = 1; i < 1000; i++) {
-			try {
-				System.out.println("set:" + store.set("test_" + i, "test"));
-				System.out.println("get:" + store.get("test_" + (i - 1)));
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-				}
-			} catch (Exception e) {
-				System.out.println("error:" + e.getMessage());
-			}
-		}
 	}
 
 }

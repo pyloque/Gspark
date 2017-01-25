@@ -1,4 +1,4 @@
-package ackern.core.errors;
+package ackern.core.error;
 
 public class HBaseError extends KernError {
 

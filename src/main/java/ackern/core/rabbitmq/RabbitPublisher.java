@@ -1,16 +1,16 @@
 package ackern.core.rabbitmq;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.Channel;
 
-import ackern.core.errors.RabbitError;
+import ackern.core.error.RabbitError;
+
+import com.rabbitmq.client.Channel;
 
 public class RabbitPublisher {
 	private final static Logger LOG = LoggerFactory.getLogger(RabbitPublisher.class);
@@ -97,17 +97,6 @@ public class RabbitPublisher {
 
 	public static BasicProperties.Builder headerBuilder() {
 		return new BasicProperties.Builder();
-	}
-
-	public static void main(String[] args) throws Exception {
-		RabbitStore store = new RabbitStore(URI.create("amqp://guest:guest@localhost:5672"));
-		RabbitPublisher publisher = new RabbitPublisher(store);
-		publisher.exchange("test-ex", ExchangeType.DIRECT, true);
-		for (int i = 0; i < 100; i++) {
-			publisher.publish("test-r", "abc");
-			System.out.println(i);
-			Thread.sleep(1000);
-		}
 	}
 
 }

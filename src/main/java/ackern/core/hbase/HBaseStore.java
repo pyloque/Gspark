@@ -7,28 +7,32 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ackern.core.errors.HBaseError;
+import ackern.core.config.HBaseConfig;
+import ackern.core.error.HBaseError;
 
 public class HBaseStore implements Closeable {
 	private final static Logger LOG = LoggerFactory.getLogger(HBaseStore.class);
 
-	private Configuration config;
+	private Configuration conf;
 	private HTablePool pool;
 
-	public HBaseStore(String zkAddrs, int port) {
-		config = HBaseConfiguration.create();
-		config.set("hbase.zookeeper.quorum", zkAddrs);
-		config.setInt("hbase.zookeeper.property.clientPort", port);
-		config.setInt("hbase.htable.threads.max", 1);
-		pool = new HTablePool(config, 5);
+	public HBaseStore(HBaseConfig config) {
+		conf = HBaseConfiguration.create();
+		conf.set("hbase.zookeeper.quorum", config.getZkAddrs());
+		conf.setInt("hbase.zookeeper.property.clientPort", config.getZkPort());
+		conf.setInt("hbase.htable.threads.max", 1);
+		pool = new HTablePool(conf, config.getMaxTableSize());
 	}
 
 	public void execute(String name, TableOperation<HTableInterface> op) {
@@ -50,7 +54,7 @@ public class HBaseStore implements Closeable {
 	public void admin(TableOperation<HBaseAdmin> consumer) {
 		HBaseAdmin admin = null;
 		try {
-			admin = new HBaseAdmin(config);
+			admin = new HBaseAdmin(conf);
 		} catch (IOException e) {
 			LOG.error("open hbase admin instance error", e);
 			throw new HBaseError("open hbase admin instance error", e);
@@ -79,12 +83,17 @@ public class HBaseStore implements Closeable {
 	}
 
 	public static void main(String[] args) {
-		HBaseStore store = new HBaseStore("localhost", 2181);
+		HBaseConfig config = new HBaseConfig();
+		config.setZkAddrs("localhost");
+		config.setZkPort(2181);
+		HBaseStore store = new HBaseStore(config);
 		store.admin(admin -> {
 			HTableDescriptor schema = new HTableDescriptor("computer");
 			schema.addFamily(new HColumnDescriptor("memory"));
 			schema.addFamily(new HColumnDescriptor("cpu"));
-			admin.createTable(schema);
+			if (!admin.isTableAvailable("computer")) {
+				admin.createTable(schema);
+			}
 		});
 		store.execute("computer", table -> {
 			Put put = new Put(Bytes.toBytes("qianwp"));
@@ -93,6 +102,14 @@ public class HBaseStore implements Closeable {
 			put.add(Bytes.toBytes("cpu"), Bytes.toBytes("cores"), Bytes.toBytes(2));
 			put.add(Bytes.toBytes("cpu"), Bytes.toBytes("frequency"), Bytes.toBytes("2.4GHz"));
 			table.put(put);
+		});
+		store.execute("computer", table -> {
+			Get get = new Get(Bytes.toBytes("qianwp"));
+			Result result = table.get(get);
+			KeyValue kv = result.getColumnLatest(Bytes.toBytes("memory"), Bytes.toBytes("size"));
+			System.out.println(new String(kv.getValue()));
+			kv = result.getColumnLatest(Bytes.toBytes("memory"), Bytes.toBytes("type"));
+			System.out.println(new String(kv.getValue()));
 		});
 		store.close();
 	}

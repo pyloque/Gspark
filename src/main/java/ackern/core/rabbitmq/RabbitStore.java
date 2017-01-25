@@ -15,7 +15,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-import ackern.core.errors.RabbitError;
+import ackern.core.config.RabbitConfig;
+import ackern.core.error.RabbitError;
 
 public class RabbitStore implements Closeable {
 	private final static Logger LOG = LoggerFactory.getLogger(RabbitStore.class);
@@ -24,9 +25,16 @@ public class RabbitStore implements Closeable {
 	private Connection conn;
 	private ThreadLocal<Channel> channelHolder = new ThreadLocal<>();
 
-	public RabbitStore(URI uri) {
+	public RabbitStore(RabbitConfig config) {
 		ConnectionFactory factory = new ConnectionFactory();
-		factory.setConnectionTimeout(5000);
+		factory.setConnectionTimeout(config.getConnectTimeout());
+		URI uri;
+		try {
+			uri = new URI(config.getUri());
+		} catch (URISyntaxException e) {
+			LOG.error("illegal rabbitmq uri {}", config.getUri(), e);
+			throw new RabbitError("illegal rabbitmq uri", e);
+		}
 		try {
 			factory.setUri(uri);
 		} catch (KeyManagementException | NoSuchAlgorithmException | URISyntaxException e) {
