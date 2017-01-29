@@ -71,6 +71,16 @@ public class RabbitStore implements Closeable {
 		return channel;
 	}
 
+	public void channel(RabbitOperation<Channel> op) {
+		Channel channel = this.channel();
+		try {
+			op.accept(channel);
+		} catch (IOException e) {
+			LOG.error("rabbit channel operation error", e);
+			throw new RabbitError("rabbit channel operation error", e);
+		}
+	}
+
 	@Override
 	public void close() throws IOException {
 		if (this.conn != null) {

@@ -1,19 +1,9 @@
 package gspark.core.rabbitmq;
 
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Charsets;
 import com.rabbitmq.client.AMQP.BasicProperties;
 
-import gspark.core.error.RabbitError;
-
-import com.rabbitmq.client.Channel;
-
 public class RabbitPublisher {
-	private final static Logger LOG = LoggerFactory.getLogger(RabbitPublisher.class);
 
 	private RabbitStore store;
 	private String exchangeName;
@@ -45,27 +35,19 @@ public class RabbitPublisher {
 	}
 
 	private void declareExchange() {
-		Channel channel = store.channel();
-		try {
+		store.channel(channel -> {
 			channel.exchangeDeclare(exchangeName, exchangeType, exchangeDurable);
-			exchangeDeclared = true;
-		} catch (IOException e) {
-			LOG.error("queue declared error", e);
-			throw new RabbitError("declare queue error", e);
-		}
+		});
+		exchangeDeclared = true;
 	}
 
 	public void publish(String routingKey, BasicProperties header, byte[] body) {
 		if (!exchangeDeclared) {
 			this.declareExchange();
 		}
-		Channel channel = store.channel();
-		try {
+		store.channel(channel -> {
 			channel.basicPublish(exchangeName, routingKey, header, body);
-		} catch (IOException e) {
-			LOG.error("publish to rabbitmq error", e);
-			throw new RabbitError("publish to exchange error", e);
-		}
+		});
 	}
 
 	public void publish(String routingKey, BasicProperties header, String content) {

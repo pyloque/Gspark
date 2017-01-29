@@ -1,18 +1,10 @@
 package gspark.core.rabbitmq;
 
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
 
-import gspark.core.error.RabbitError;
+import gspark.core.Holder;
 
 public class RabbitConsumer {
-
-	private final static Logger LOG = LoggerFactory.getLogger(RabbitConsumer.class);
 
 	private RabbitStore store;
 	private String exchangeName;
@@ -45,25 +37,17 @@ public class RabbitConsumer {
 	}
 
 	private void declareExchange() {
-		Channel channel = store.channel();
-		try {
+		store.channel(channel -> {
 			channel.exchangeDeclare(exchangeName, exchangeType, exchangeDurable);
-		} catch (IOException e) {
-			LOG.error("exchange declared error", e);
-			throw new RabbitError("declare exchange error", e);
-		}
+		});
 		exchangeDeclared = true;
 	}
 
 	private void declareQueue() {
-		Channel channel = store.channel();
-		try {
+		store.channel(channel -> {
 			channel.queueDeclare(queueName, queueDurable, queueExclusive, queueAutoDelete, null);
 			channel.queueBind(queueName, exchangeName, routingKey);
-		} catch (IOException e) {
-			LOG.error("queue declared error", e);
-			throw new RabbitError("declare queue error", e);
-		}
+		});
 		queueDeclared = true;
 	}
 
@@ -74,18 +58,15 @@ public class RabbitConsumer {
 		if (!this.queueDeclared) {
 			this.declareQueue();
 		}
-		Channel channel = store.channel();
-		try {
+		Holder<RabbitDelivery> holder = new Holder<>();
+		store.channel(channel -> {
 			GetResponse res = channel.basicGet(queueName, autoAck);
-			if(res == null) {
-				return null;
+			if (res != null) {
+				RabbitDelivery delivery = new RabbitDelivery(channel, res.getProps(), res.getBody());
+				holder.set(delivery);
 			}
-			RabbitDelivery delivery = new RabbitDelivery(channel, res.getProps(), res.getBody());
-			return delivery;
-		} catch (IOException e) {
-			LOG.error("queue fetch error", e);
-			throw new RabbitError("fetch queue error", e);
-		}
+		});
+		return holder.value();
 	}
 
 }
