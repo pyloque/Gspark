@@ -1,4 +1,4 @@
-package gspark.core.background;
+package gspark.core.bg;
 
 import java.util.concurrent.TimeUnit;
 
@@ -8,13 +8,13 @@ import org.slf4j.LoggerFactory;
 public abstract class Worker<T> {
 	private final static Logger LOG = LoggerFactory.getLogger(Worker.class);
 
-	private BlockingThreadPoolExecutor executor;
+	private BlockingExecutor executor;
 	private boolean stop;
 	private int sleepAwait;
 
 	public Worker(int capacity, int sleepAwaitInMillis) {
 		this.sleepAwait = sleepAwaitInMillis;
-		this.executor = new BlockingThreadPoolExecutor(capacity);
+		this.executor = new BlockingExecutor(capacity);
 	}
 
 	public Worker(int capacity) {

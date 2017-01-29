@@ -1,4 +1,4 @@
-package gspark.core.background;
+package gspark.core.bg;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -7,11 +7,11 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class BlockingThreadPoolExecutor extends ThreadPoolExecutor {
+public class BlockingExecutor extends ThreadPoolExecutor {
 
 	private final Semaphore semaphore;
 
-	public BlockingThreadPoolExecutor(int capacity) {
+	public BlockingExecutor(int capacity) {
 		super(0, capacity, 10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 		semaphore = new Semaphore(capacity);
 	}

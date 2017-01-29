@@ -1,4 +1,4 @@
-package gspark.core.background;
+package gspark.core.bg;
 
 import java.util.ArrayList;
 import java.util.List;
