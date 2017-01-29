@@ -1,4 +1,4 @@
-package gspark.core.redis;
+package gspark.core.codis;
 
 import java.net.URI;
 import java.net.URISyntaxException;

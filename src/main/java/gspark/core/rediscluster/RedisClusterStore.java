@@ -1,4 +1,4 @@
-package gspark.core.redis;
+package gspark.core.rediscluster;
 
 import java.io.IOException;
 import java.net.URI;

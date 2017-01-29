@@ -7,6 +7,9 @@ import java.util.function.Consumer;
 
 import com.google.inject.Singleton;
 
+import gspark.core.codis.CodisStore;
+import gspark.core.rediscluster.RedisClusterStore;
+
 @Singleton
 public class RedisGroup {
 
@@ -14,7 +17,7 @@ public class RedisGroup {
 	private Map<String, CodisStore> codises = new HashMap<>();
 	private Map<String, RedisClusterStore> clusters = new HashMap<>();
 
-	public Set<String> redisNames() {
+	public Set<String> names() {
 		return redises.keySet();
 	}
 

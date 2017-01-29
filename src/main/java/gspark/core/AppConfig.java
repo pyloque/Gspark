@@ -16,13 +16,14 @@ import gspark.core.config.HibernateConfig;
 import gspark.core.config.HttpClientConfig;
 import gspark.core.config.JdbcConfig;
 import gspark.core.config.MemcacheConfig;
+import gspark.core.config.MongoConfig;
 import gspark.core.config.RabbitConfig;
 import gspark.core.config.RedisClusterConfig;
 import gspark.core.config.RedisConfig;
 import gspark.core.config.SparkConfig;
 import gspark.core.error.ConfigError;
 
-public class AppConfig {
+public class AppConfig<T extends AppConfig<T>> {
 
 	public static AppEnv env = AppEnv.DEV;
 
@@ -46,6 +47,8 @@ public class AppConfig {
 	private Map<String, JdbcConfig> jdbcs = new HashMap<>();
 	@JSONField(name = "hbase")
 	private Map<String, HBaseConfig> hbases = new HashMap<>();
+	@JSONField(name = "mongo")
+	private Map<String, MongoConfig> mongoes = new HashMap<>();
 
 	private static void settle() {
 		String envName = System.getenv().getOrDefault("zhangyue.env", "dev");
@@ -53,7 +56,7 @@ public class AppConfig {
 		env = AppEnv.valueOf(envName);
 	}
 
-	public static AppConfig load() {
+	public static <K extends AppConfig<K>> K load(Class<K> clazz) {
 		settle();
 		String content;
 		try {
@@ -64,7 +67,7 @@ public class AppConfig {
 		} catch (IOException e) {
 			throw new ConfigError("env config file content illegal", e);
 		}
-		return JSON.parseObject(content, AppConfig.class);
+		return JSON.parseObject(content, clazz);
 	}
 
 	public SparkConfig getSpark() {
@@ -147,11 +150,12 @@ public class AppConfig {
 		this.jdbcs = jdbcs;
 	}
 
-	public static void main(String[] args) {
-		AppConfig config = new AppConfig();
-		config.redises.put("hello", new RedisConfig());
-		config = JSON.parseObject(JSON.toJSONString(config), AppConfig.class);
-		System.out.println(config);
+	public Map<String, MongoConfig> getMongoes() {
+		return mongoes;
+	}
+
+	public void setMongoes(Map<String, MongoConfig> mongoes) {
+		this.mongoes = mongoes;
 	}
 
 }
