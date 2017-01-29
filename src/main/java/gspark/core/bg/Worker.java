@@ -24,7 +24,8 @@ public abstract class Worker<T> {
 	/**
 	 * 这里可以做一些汇报性的工作
 	 */
-	public abstract void idle() ;
+	public abstract void idle();
+
 	/**
 	 * 初始化工作
 	 */
@@ -62,13 +63,20 @@ public abstract class Worker<T> {
 			}
 			if (t != null) {
 				final T x = t;
-				executor.submit(() -> {
-					try {
-						process(x);
-					} catch (Exception e) {
-						LOG.error("process error in worker", e);
-					}
-				});
+				try {
+					executor.submitButBlockIfFull(() -> {
+						// just ignore the return value, it doesn't matter at
+						// all
+						try {
+							process(x);
+						} catch (Exception e) {
+							LOG.error("process error in worker", e);
+							return false;
+						}
+						return true;
+					});
+				} catch (InterruptedException e) {
+				}
 			} else {
 				try {
 					idle();
@@ -79,6 +87,10 @@ public abstract class Worker<T> {
 					Thread.sleep(sleepAwait);
 				} catch (InterruptedException e) {
 				}
+			}
+			if (Thread.currentThread().isInterrupted()) {
+				LOG.error("thread is interrupted, quit loop now");
+				break;
 			}
 		}
 		executor.shutdown();
