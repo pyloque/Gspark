@@ -35,7 +35,7 @@ public class HBaseStore implements Closeable {
 		pool = new HTablePool(conf, config.getMaxTableSize());
 	}
 
-	public void execute(String name, TableOperation<HTableInterface> op) {
+	public void execute(String name, HBaseOperation<HTableInterface> op) {
 		HTableInterface table = pool.getTable(name);
 		try {
 			op.accept(table);
@@ -51,7 +51,7 @@ public class HBaseStore implements Closeable {
 		}
 	}
 
-	public void admin(TableOperation<HBaseAdmin> consumer) {
+	public void admin(HBaseOperation<HBaseAdmin> consumer) {
 		HBaseAdmin admin = null;
 		try {
 			admin = new HBaseAdmin(conf);

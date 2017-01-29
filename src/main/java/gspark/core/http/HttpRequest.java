@@ -18,15 +18,12 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 
 import gspark.core.error.HttpError;
 
 public class HttpRequest {
-	private final static Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
 
 	private String url;
 	private Map<String, List<String>> params = new LinkedHashMap<>();
@@ -72,13 +69,7 @@ public class HttpRequest {
 		for (Entry<String, String> entry : headers.entrySet()) {
 			get.setHeader(entry.getKey(), entry.getValue());
 		}
-		CloseableHttpResponse res = null;
-		try {
-			res = client.execute(get);
-		} catch (IOException e) {
-			LOG.error("url get error url={}", url, e);
-			throw new HttpError("url get error", e);
-		}
+		CloseableHttpResponse res = client.request(get);
 		HttpResponse result = new HttpResponse(res.getStatusLine().getStatusCode());
 		for (Header header : res.getAllHeaders()) {
 			result.header(header.getName(), header.getValue());
@@ -93,13 +84,7 @@ public class HttpRequest {
 		for (Entry<String, String> entry : headers.entrySet()) {
 			head.setHeader(entry.getKey(), entry.getValue());
 		}
-		CloseableHttpResponse res = null;
-		try {
-			res = client.execute(head);
-		} catch (IOException e) {
-			LOG.error("url head error url={}", url, e);
-			throw new HttpError("url head error", e);
-		}
+		CloseableHttpResponse res = client.request(head);
 		HttpResponse result = new HttpResponse(res.getStatusLine().getStatusCode());
 		for (Header header : res.getAllHeaders()) {
 			result.header(header.getName(), header.getValue());
@@ -113,13 +98,7 @@ public class HttpRequest {
 		for (Entry<String, String> entry : headers.entrySet()) {
 			post.setHeader(entry.getKey(), entry.getValue());
 		}
-		CloseableHttpResponse res = null;
-		try {
-			res = client.execute(post);
-		} catch (IOException e) {
-			LOG.error("url post error url={}", url, e);
-			throw new HttpError("url post error", e);
-		}
+		CloseableHttpResponse res = client.request(post);
 		HttpResponse result = new HttpResponse(res.getStatusLine().getStatusCode());
 		for (Header header : res.getAllHeaders()) {
 			result.header(header.getName(), header.getValue());
@@ -134,13 +113,7 @@ public class HttpRequest {
 		for (Entry<String, String> entry : headers.entrySet()) {
 			put.setHeader(entry.getKey(), entry.getValue());
 		}
-		CloseableHttpResponse res = null;
-		try {
-			res = client.execute(put);
-		} catch (IOException e) {
-			LOG.error("url put error url={}", url, e);
-			throw new HttpError("url put error", e);
-		}
+		CloseableHttpResponse res = client.request(put);
 		HttpResponse result = new HttpResponse(res.getStatusLine().getStatusCode());
 		for (Header header : res.getAllHeaders()) {
 			result.header(header.getName(), header.getValue());
@@ -155,13 +128,7 @@ public class HttpRequest {
 		for (Entry<String, String> entry : headers.entrySet()) {
 			delete.setHeader(entry.getKey(), entry.getValue());
 		}
-		CloseableHttpResponse res = null;
-		try {
-			res = client.execute(delete);
-		} catch (IOException e) {
-			LOG.error("url delete error url={}", url, e);
-			throw new HttpError("url delete error", e);
-		}
+		CloseableHttpResponse res = client.request(delete);
 		HttpResponse result = new HttpResponse(res.getStatusLine().getStatusCode());
 		for (Header header : res.getAllHeaders()) {
 			result.header(header.getName(), header.getValue());
