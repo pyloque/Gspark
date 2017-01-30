@@ -1,14 +1,9 @@
-package gspark.jdbc;
-
-import java.util.HashMap;
-import java.util.Map;
+package gspark.redis;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -20,10 +15,9 @@ import gspark.core.AppConfig;
 import gspark.core.AppEnv;
 import gspark.core.GuiceModule;
 import gspark.core.redis.RedisStore;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-public class JdbcTest {
+public class RedisTest {
 	private static Injector injector;
 
 	@Inject
@@ -45,32 +39,8 @@ public class JdbcTest {
 
 	@Test
 	public void testRedis() {
-		final Jedis mockJedis = Mockito.mock(Jedis.class);
-		redis.mock(pool -> {
-			Mockito.doNothing().when(mockJedis).close();
-			Mockito.when(pool.getResource()).thenReturn(mockJedis);
-			Map<String, String> kvs = new HashMap<>();
-			Mockito.when(mockJedis.set(Mockito.anyString(), Mockito.anyString())).then(new Answer<String>() {
-
-				@Override
-				public String answer(InvocationOnMock invocation) throws Throwable {
-					String key = invocation.getArgument(0);
-					String value = invocation.getArgument(1);
-					kvs.put(key, value);
-					return "OK";
-				}
-
-			});
-			Mockito.when(mockJedis.get(Mockito.anyString())).then(new Answer<String>() {
-
-				@Override
-				public String answer(InvocationOnMock invocation) throws Throwable {
-					String key = invocation.getArgument(0);
-					return kvs.get(key);
-				}
-
-			});
-		});
+		MockRedis mockRedis = new MockRedis(redis);
+		mockRedis.mockKv();
 		redis.execute(jedis -> {
 			System.out.println(jedis.set("test-key", "test-value"));
 			System.out.println(jedis.get("test-key"));
