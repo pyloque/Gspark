@@ -29,9 +29,18 @@ public class RedisStore {
 		this.pool = new JedisPool(new GenericObjectPoolConfig(), uri, config.getConnectTimeout(),
 				config.getSoTimeout());
 	}
+	
+	public RedisStore(JedisPool pool) {
+		this.pool = pool;
+	}
 
 	public void close() {
 		pool.close();
+	}
+	
+	public RedisStore mock(Consumer<JedisPool> func) {
+		func.accept(pool);
+		return this;
 	}
 
 	public RedisStore execute(Consumer<Jedis> func) {

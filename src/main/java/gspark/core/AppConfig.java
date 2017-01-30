@@ -70,6 +70,11 @@ public class AppConfig<T extends AppConfig<T>> {
 		return JSON.parseObject(content, clazz);
 	}
 
+	public static <K extends AppConfig<K>> K load(Class<K> clazz, String content) {
+		settle();
+		return JSON.parseObject(content, clazz);
+	}
+
 	public SparkConfig getSpark() {
 		return spark;
 	}

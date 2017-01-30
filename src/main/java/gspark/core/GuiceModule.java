@@ -72,7 +72,7 @@ public abstract class GuiceModule<T extends AppConfig<T>> extends AbstractModule
 		this.bindJdbc();
 		this.bindHBase();
 		this.bindMongo();
-		this.onBindOk();
+		this.bindMore();
 	}
 
 	private void bindSpark() {
@@ -210,6 +210,6 @@ public abstract class GuiceModule<T extends AppConfig<T>> extends AbstractModule
 		}
 	}
 
-	public abstract void onBindOk();
+	public abstract void bindMore();
 
 }
