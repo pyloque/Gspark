@@ -1,9 +1,14 @@
 package gspark.jdbc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -42,12 +47,33 @@ public class JdbcTest {
 	public void testRedis() {
 		final Jedis mockJedis = Mockito.mock(Jedis.class);
 		redis.mock(pool -> {
-			System.out.println(pool);
 			Mockito.doNothing().when(mockJedis).close();
 			Mockito.when(pool.getResource()).thenReturn(mockJedis);
+			Map<String, String> kvs = new HashMap<>();
+			Mockito.when(mockJedis.set(Mockito.anyString(), Mockito.anyString())).then(new Answer<String>() {
+
+				@Override
+				public String answer(InvocationOnMock invocation) throws Throwable {
+					String key = invocation.getArgument(0);
+					String value = invocation.getArgument(1);
+					kvs.put(key, value);
+					return "OK";
+				}
+
+			});
+			Mockito.when(mockJedis.get(Mockito.anyString())).then(new Answer<String>() {
+
+				@Override
+				public String answer(InvocationOnMock invocation) throws Throwable {
+					String key = invocation.getArgument(0);
+					return kvs.get(key);
+				}
+
+			});
 		});
 		redis.execute(jedis -> {
-			System.out.println(jedis);
+			System.out.println(jedis.set("test-key", "test-value"));
+			System.out.println(jedis.get("test-key"));
 		});
 	}
 
@@ -67,11 +93,6 @@ public class JdbcTest {
 			this.bind(RedisStore.class).annotatedWith(Names.named("test")).toInstance(redis);
 		}
 
-	}
-	
-	public static void main(String[] args) {
-		Jedis jedis = Mockito.mock(Jedis.class);
-		System.out.println(jedis);
 	}
 
 }
