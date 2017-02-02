@@ -22,7 +22,7 @@ public class MemcacheStore {
 	private final static Logger LOG = LoggerFactory.getLogger(MemcacheStore.class);
 
 	private MemcachedClientBuilder builder;
-	private MemcachedClient client;
+	protected MemcachedClient client;
 
 	public MemcacheStore(MemcacheConfig config) {
 		MemcachedClientBuilder builder = new XMemcachedClientBuilder(AddrUtil.getAddresses(config.getAddrs()));
@@ -34,6 +34,10 @@ public class MemcacheStore {
 		this.builder = builder;
 	}
 
+	public MemcacheStore(MemcachedClient client) {
+		this.client = client;
+	}
+	
 	public MemcacheStore connectionPoolSize(int size) {
 		this.builder.setConnectionPoolSize(size);
 		return this;

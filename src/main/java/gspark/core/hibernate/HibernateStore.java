@@ -35,6 +35,8 @@ public class HibernateStore {
 		cfg.setProperty("hibernate.c3p0.max_size", "" + config.getMaxConns());
 		cfg.setProperty("hibernate.c3p0.min_size", "0");
 		cfg.setProperty("hibernate.c3p0.acquire_increment", "1");
+		cfg.setProperty("hibernate.cache.use_second_level_cache", "false");
+		cfg.setProperty("hibernate.temp.use_jdbc_metadata_defaults", "false");
 	}
 
 	private SessionFactory factory() {

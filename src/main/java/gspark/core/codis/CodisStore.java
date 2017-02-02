@@ -37,6 +37,17 @@ public class CodisStore {
 		}
 	}
 
+	public CodisStore(JedisPool... pools) {
+		this.pools = new ArrayList<JedisPool>();
+		for (JedisPool pool : pools) {
+			this.pools.add(pool);
+		}
+	}
+	
+	public List<JedisPool> getPools() {
+		return pools;
+	}
+
 	public void close() {
 		for (JedisPool pool : pools) {
 			pool.close();

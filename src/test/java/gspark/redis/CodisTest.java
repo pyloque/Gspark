@@ -21,15 +21,15 @@ import com.google.inject.name.Names;
 import gspark.core.AppConfig;
 import gspark.core.AppEnv;
 import gspark.core.GuiceModule;
-import gspark.core.redis.RedisStore;
+import gspark.core.codis.CodisStore;
 import redis.clients.jedis.Tuple;
 
-public class RedisTest {
+public class CodisTest {
 	private static Injector injector;
 
 	@Inject
 	@Named("test")
-	private RedisStore redis;
+	private CodisStore redis;
 
 	@BeforeClass
 	public static void initialize() {
@@ -273,14 +273,14 @@ public class RedisTest {
 
 		@Override
 		public void bindMore() {
-			RedisStore redis = new MockRedisStore();
-			this.bind(RedisStore.class).annotatedWith(Names.named("test")).toInstance(redis);
+			CodisStore redis = new MockCodisStore();
+			this.bind(CodisStore.class).annotatedWith(Names.named("test")).toInstance(redis);
 		}
 
 	}
 
 	public static void main(String[] args) {
-		Result result = JUnitCore.runClasses(RedisTest.class);
+		Result result = JUnitCore.runClasses(CodisTest.class);
 		System.out.println(result.getRunCount());
 		for (Failure failure : result.getFailures()) {
 			System.out.println(failure.getMessage());

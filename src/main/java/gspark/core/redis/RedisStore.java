@@ -33,16 +33,15 @@ public class RedisStore {
 	public RedisStore(JedisPool pool) {
 		this.pool = pool;
 	}
+	
+	public JedisPool getPool() {
+		return this.pool;
+	}
 
 	public void close() {
 		pool.close();
 	}
 	
-	public RedisStore mock(Consumer<JedisPool> func) {
-		func.accept(pool);
-		return this;
-	}
-
 	public RedisStore execute(Consumer<Jedis> func) {
 		try (Jedis jedis = pool.getResource()) {
 			func.accept(jedis);

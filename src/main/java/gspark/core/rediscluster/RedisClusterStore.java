@@ -37,6 +37,10 @@ public class RedisClusterStore {
 		cluster = new JedisCluster(nodes, config.getConnectTimeout(), config.getSoTimeout(),
 				config.getMaxRedirections(), new GenericObjectPoolConfig());
 	}
+	
+	public JedisCluster getCluster() {
+		return cluster;
+	}
 
 	public void close() {
 		try {
