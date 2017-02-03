@@ -39,12 +39,8 @@ public class WebStarter {
 
 	public void start() {
 		webServer.start(spark -> {
-			spark.path("/api/hello", () -> {
-				helloApi.setup(spark);
-			});
-			spark.path("/ui/hello", () -> {
-				helloUi.setup(spark);
-			});
+			spark.path("/api/hello", () -> helloApi.setup(spark));
+			spark.path("/ui/hello", () -> helloUi.setup(spark));
 			spark.exception(ApiError.class, (exc, req, res) -> {
 				ApiError error = (ApiError) exc;
 				res.body(errorApi.renderError(error));
