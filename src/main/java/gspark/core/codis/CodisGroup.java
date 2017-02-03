@@ -5,9 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import com.google.inject.Singleton;
-
-@Singleton
 public class CodisGroup {
 
 	private Map<String, CodisStore> codises = new HashMap<>();

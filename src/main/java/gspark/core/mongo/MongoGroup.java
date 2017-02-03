@@ -5,9 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import com.google.inject.Singleton;
-
-@Singleton
 public class MongoGroup {
 
 	private Map<String, MongoStore> stores = new HashMap<>();

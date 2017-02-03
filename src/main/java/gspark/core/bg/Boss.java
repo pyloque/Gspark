@@ -3,7 +3,7 @@ package gspark.core.bg;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.inject.Singleton;
+import javax.inject.Singleton;
 
 @Singleton
 public class Boss {

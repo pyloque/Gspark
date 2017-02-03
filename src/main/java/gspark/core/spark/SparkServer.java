@@ -2,12 +2,9 @@ package gspark.core.spark;
 
 import java.util.function.Consumer;
 
-import com.google.inject.Singleton;
-
 import gspark.core.config.SparkConfig;
 import spark.Service;
 
-@Singleton
 public class SparkServer {
 
 	private Service inst;
